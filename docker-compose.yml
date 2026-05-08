@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: akitaonrails-comfyui:latest
+    image: mateuspym-comfyui:latest
     container_name: comfyui
     ports:
       - "8188:8188"
@@ -17,6 +17,7 @@ services:
       - ./custom_nodes:/app/ComfyUI/custom_nodes
       - ./output:/app/ComfyUI/output
       - ./input:/app/ComfyUI/input
+      - ./workflows:/app/ComfyUI/user/default/workflows
       - comfyui_venv:/venv
       - ./extensions.conf:/app/extensions.conf:ro
       - ./models.conf:/app/models.conf:ro
