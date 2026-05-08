@@ -13,7 +13,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH" \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
     VIRTUAL_ENV=/venv \
-    UV_NO_CACHE=1
+    UV_NO_CACHE=1 \
+    UV_LINK_MODE=copy
 
 # Install system dependencies - grouped by category and alphabetized
 RUN apt-get update && apt-get install -y --no-install-recommends \
