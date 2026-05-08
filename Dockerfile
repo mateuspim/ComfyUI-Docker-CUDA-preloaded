@@ -22,10 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git-lfs \
     ninja-build \
     cmake \
-    # Python
-    python3.12 \
-    python3.12-dev \
-    python3.12-venv \
     # Libraries for GUI and media
     ffmpeg \
     libgl1 \
@@ -55,7 +51,7 @@ RUN mkdir -p /app /venv && \
 USER 1000
 
 # Setup virtual environment
-RUN uv venv /venv --python 3.12
+RUN uv venv /venv --python 3.13
 
 # Install PyTorch and dependencies
 RUN uv pip install \
