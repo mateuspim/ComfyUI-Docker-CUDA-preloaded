@@ -40,7 +40,7 @@ install_extension_deps() {
 
   if [ -f "$dir/requirements.txt" ]; then
     log "INFO" "Installing dependencies for $name"
-    if pip install --no-cache-dir -r "$dir/requirements.txt"; then
+    if uv pip install -r "$dir/requirements.txt"; then
       log "INFO" "Successfully installed dependencies for $name"
       return 0
     else

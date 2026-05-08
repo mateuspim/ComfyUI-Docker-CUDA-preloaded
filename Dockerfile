@@ -11,7 +11,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     COMFYUI_DIR=/app/ComfyUI \
     PATH="/venv/bin:$PATH" \
     LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH" \
-    HF_HUB_ENABLE_HF_TRANSFER=1
+    HF_HUB_ENABLE_HF_TRANSFER=1 \
+    VIRTUAL_ENV=/venv \
+    UV_NO_CACHE=1
 
 # Install system dependencies - grouped by category and alphabetized
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -42,6 +44,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 # Create directories with proper ownership
 RUN mkdir -p /app /venv && \
     chown -R 1000:1000 /app /venv
@@ -50,16 +55,15 @@ RUN mkdir -p /app /venv && \
 USER 1000
 
 # Setup virtual environment
-RUN python3.12 -m venv /venv
+RUN uv venv /venv --python 3.12
 
 # Install PyTorch and dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
+RUN uv pip install \
     torch==2.6.0 \
     torchvision \
     torchaudio \
     --index-url https://download.pytorch.org/whl/cu124 && \
-    pip install --no-cache-dir -U xformers --index-url https://download.pytorch.org/whl/cu124
+    uv pip install -U xformers --index-url https://download.pytorch.org/whl/cu124
 
 RUN git clone https://github.com/TimDettmers/bitsandbytes.git /tmp/bitsandbytes && \
     cd /tmp/bitsandbytes && \
@@ -69,7 +73,7 @@ RUN git clone https://github.com/TimDettmers/bitsandbytes.git /tmp/bitsandbytes 
     cmake -B build -DCOMPUTE_BACKEND=cuda -DCMAKE_CUDA_COMPILER=$CUDA_HOME/bin/nvcc . && \
     cmake --build build -j$(nproc) && \
     cp bitsandbytes/libbitsandbytes_cuda128.so bitsandbytes/libbitsandbytes_cuda124.so && \
-    pip install . && \
+    uv pip install . && \
     cd / && rm -rf /tmp/bitsandbytes
 
 # Clone ComfyUI
@@ -89,8 +93,8 @@ RUN mkdir -p ${COMFYUI_DIR}/models \
     touch ${COMFYUI_DIR}/custom_nodes/.last_commits/__init__.py
 
 # Install requirements
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir \
+RUN uv pip install -r requirements.txt && \
+    uv pip install \
     # Additional dependencies
     huggingface_hub \
     hf-transfer \
