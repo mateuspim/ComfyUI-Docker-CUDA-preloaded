@@ -22,6 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git-lfs \
     ninja-build \
     cmake \
+    # Python (uv uses system python3.12 for the venv; dev needed for bitsandbytes build)
+    python3.12 \
+    python3.12-dev \
     # Libraries for GUI and media
     ffmpeg \
     libgl1 \
@@ -51,7 +54,7 @@ RUN mkdir -p /app /venv && \
 USER 1000
 
 # Setup virtual environment
-RUN uv venv /venv --python 3.13
+RUN uv venv /venv --python 3.12
 
 # Install PyTorch and dependencies
 RUN uv pip install \
